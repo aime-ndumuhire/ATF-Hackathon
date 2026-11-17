@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174f45">
+  <title>Visa readiness check: DRC to South Africa</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #172321;
+      background: #f5f7f5;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --accent: #176b58;
+      --muted: #596764;
+      --line: #d7dfdc;
+      --surface: #fff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      width: min(100% - 32px, 760px);
+      margin: 0 auto;
+      padding: 40px 0 32px;
+      flex: 1;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 650px;
+      margin: 0;
+      font-size: clamp(2rem, 8vw, 3.25rem);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+
+    .tagline {
+      margin: 15px 0 30px;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 3vw, 1.25rem);
+    }
+
+    .panel, .result-card, .group-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+    }
+
+    .panel { padding: 22px; }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.2rem;
+      letter-spacing: -.02em;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1fr;
+    }
+
+    label { display: block; font-weight: 650; }
+
+    input, select, button {
+      font: inherit;
+    }
+
+    select, input[type="date"] {
+      display: block;
+      width: 100%;
+      min-height: 48px;
+      margin-top: 7px;
+      padding: 10px 12px;
+      border: 1px solid #9eaeaa;
+      border-radius: 9px;
+      background: #fff;
+      color: inherit;
+    }
+
+    :focus-visible {
+      outline: 3px solid #8bc7b4;
+      outline-offset: 2px;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 720;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .secondary {
+      border: 1px solid #9eaeaa;
+      background: #fff;
+      color: #24332f;
+    }
+
+    #results { margin-top: 22px; }
+    #results:empty { display: none; }
+
+    .message, .result-card { padding: 20px; }
+
+    .message {
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      background: #e8f2ee;
+      font-weight: 700;
+    }
+
+    .error {
+      border-left-color: #9c3d2e;
+      background: #fff0ed;
+      color: #742d22;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+    }
+
+    .timeline div { padding-left: 13px; border-left: 3px solid var(--accent); }
+    .timeline dt { font-weight: 750; }
+    .timeline dd { margin: 3px 0 0; color: var(--muted); }
+
+    .checklist-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin: 25px 0 12px;
+    }
+
+    .checklist-heading h2 { margin: 0; }
+    .progress { color: var(--muted); font-size: .95rem; font-weight: 650; }
+    .groups { display: grid; gap: 12px; }
+    .group-card { padding: 17px; }
+    .group-card h3 { margin: 0 0 12px; font-size: 1.05rem; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 12px 0;
+      border-top: 1px solid #e8edeb;
+      line-height: 1.45;
+    }
+
+    .check-item:first-of-type { border-top: 0; }
+    .check-item input {
+      width: 22px;
+      height: 22px;
+      margin: 1px 0 0;
+      flex: 0 0 auto;
+      accent-color: var(--accent);
+    }
+
+    .item-copy { flex: 1; }
+    .item-note, .next-step {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 500;
+    }
+
+    .next-step { color: var(--accent); font-weight: 750; }
+
+    .ready { margin-top: 18px; border-top: 4px solid var(--accent); }
+    .ready h2 { margin-bottom: 12px; }
+    .ready ul { margin: 0; padding-left: 22px; }
+    .ready li + li { margin-top: 8px; }
+
+    .coming-next {
+      margin: 18px 0 0;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #e9eeec;
+      color: #35433f;
+      line-height: 1.5;
+    }
+
+    footer {
+      padding: 20px 16px 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    @media (min-width: 600px) {
+      main { padding-top: 56px; }
+      .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .field-grid .wide { grid-column: 1 / -1; }
+      .panel { padding: 28px; }
+      .group-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">A practical checklist for your trip</p>
+      <h1>Visa readiness check: DRC to South Africa</h1>
+      <p class="tagline">We don't remove the visa. We remove the guesswork.</p>
+    </header>
+
+    <form class="panel" id="trip-form">
+      <h2>Tell us about your trip</h2>
+      <div class="field-grid">
+        <label class="wide" for="purpose">Trip purpose
+          <select id="purpose" name="purpose" required>
+            <option value="">Choose a purpose</option>
+            <option value="travel">Travel</option>
+            <option value="business">Business</option>
+            <option value="family">Family visit</option>
+            <option value="study">Study</option>
+          </select>
+        </label>
+        <label for="start-date">Travel start date
+          <input id="start-date" name="startDate" type="date" required>
+        </label>
+        <label for="end-date">Travel end date
+          <input id="end-date" name="endDate" type="date" required>
+        </label>
+        <label class="wide" for="passport-expiry">Passport expiry date
+          <input id="passport-expiry" name="passportExpiry" type="date" required>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="primary" type="submit">Check my readiness</button>
+        <button class="secondary" id="reset" type="button">Reset</button>
+      </div>
+    </form>
+
+    <section id="results" aria-live="polite" aria-atomic="false"></section>
+  </main>
+
+  <footer>
+    General information, not legal advice. Confirm with VFS before applying.
+    Source: VFS Global DRC to South Africa page, last checked 17 November 2026.
+  </footer>
+
+  <script>
+    const ITEMS = [
+      { id: "yellow-fever", group: "Clinic", text: "Yellow fever certificate", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "travel-bank-statements", group: "Bank", text: "6 months of original bank statements, stamped and signed by the bank", purposes: ["travel"], required: true },
+      { id: "proof-of-funds", group: "Bank", text: "Proof of funds for your stay", purposes: ["business", "family"], required: true },
+      { id: "host-invitation", group: "Host or employer", text: "Invitation letter from your host stating their citizenship or residence status", purposes: ["family"], required: true },
+      { id: "host-id", group: "Host or employer", text: "Copy of your host's ID", purposes: ["family"], required: false },
+      { id: "employer-letter", group: "Host or employer", text: "Letter from your Congolese employer", purposes: ["business"], required: false },
+      { id: "company-invitation", group: "Host or employer", text: "Invitation from the South African company", purposes: ["business"], required: false },
+      { id: "flight-booking", group: "Bookings", text: "Return or onward flight booking", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "accommodation", group: "Bookings", text: "Proof of accommodation", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "passport", group: "At home", text: "Passport with 2 unused pages", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "bi-84", group: "At home", text: "Completed and signed Form BI-84", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "passport-photos", group: "At home", text: "2 colour passport photos", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "statement-of-purpose", group: "At home", text: "Signed statement of purpose and length of visit", purposes: ["travel", "business", "family", "study"], required: true },
+      { id: "passport-copy", group: "At home", text: "Copy of passport photo page", purposes: ["travel", "business", "family", "study"], required: false }
+    ];
+
+    const STORAGE_KEY = "drc-sa-visa-readiness";
+    const form = document.getElementById("trip-form");
+    const results = document.getElementById("results");
+    const fields = {
+      purpose: document.getElementById("purpose"),
+      startDate: document.getElementById("start-date"),
+      endDate: document.getElementById("end-date"),
+      passportExpiry: document.getElementById("passport-expiry")
+    };
+
+    function emptyState() {
+      return { answers: { purpose: "", startDate: "", endDate: "", passportExpiry: "" }, checked: {} };
+    }
+
+    function loadState() {
+      const state = emptyState();
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (saved && typeof saved === "object") {
+          Object.keys(state.answers).forEach((key) => {
+            if (typeof saved.answers?.[key] === "string") state.answers[key] = saved.answers[key];
+          });
+          if (saved.checked && typeof saved.checked === "object") {
+            ITEMS.forEach((item) => {
+              if (typeof saved.checked[item.id] === "boolean") state.checked[item.id] = saved.checked[item.id];
+            });
+          }
+        }
+      } catch (error) {
+        results.innerHTML = '<p class="message error" role="alert">Your saved progress could not be read. You can continue and save new progress.</p>';
+      }
+      return state;
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      state.answers = Object.fromEntries(
+        Object.entries(fields).map(([key, field]) => [key, field.value])
+      );
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        results.innerHTML = '<p class="message error" role="alert">Progress could not be saved in this browser. Your current checklist remains available until you close this page.</p>';
+      }
+    }
+
+    function localToday() {
+      const now = new Date();
+      return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+    }
+
+    function parseDate(value) {
+      const [year, month, day] = value.split("-").map(Number);
+      return new Date(Date.UTC(year, month - 1, day));
+    }
+
+    function addDays(value, days) {
+      const date = parseDate(value);
+      date.setUTCDate(date.getUTCDate() + days);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function addOneMonth(value) {
+      const date = parseDate(value);
+      const day = date.getUTCDate();
+      date.setUTCDate(1);
+      date.setUTCMonth(date.getUTCMonth() - 1);
+      const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
+      date.setUTCDate(Math.min(day, lastDay));
+      return date.toISOString().slice(0, 10);
+    }
+
+    function formatDate(value) {
+      return new Intl.DateTimeFormat("en", { dateStyle: "long", timeZone: "UTC" }).format(parseDate(value));
+    }
+
+    function message(text, isError) {
+      results.innerHTML = "";
+      const paragraph = document.createElement("p");
+      paragraph.className = isError ? "message error" : "message";
+      if (isError) paragraph.setAttribute("role", "alert");
+      paragraph.textContent = text;
+      results.append(paragraph);
+    }
+
+    function validateTrip() {
+      if (!form.reportValidity()) return false;
+      const { purpose, startDate, endDate, passportExpiry } = state.answers;
+      if (purpose === "study") {
+        message("Study visas are coming soon. Ask the South African Embassy in Kinshasa.", false);
+        return false;
+      }
+      if (startDate < localToday()) {
+        message("Your travel start date can't be in the past.", true);
+        return false;
+      }
+      if (endDate < startDate) {
+        message("Your travel end date can't be before your start date.", true);
+        return false;
+      }
+      if (passportExpiry < addDays(endDate, 30)) {
+        message("Renew your passport first", true);
+        return false;
+      }
+      return true;
+    }
+
+    function renderChecklist() {
+      const { startDate } = state.answers;
+      const applicable = ITEMS.filter((item) => item.purposes.includes(state.answers.purpose));
+      const firstUnchecked = applicable.find((item) => !state.checked[item.id]);
+      const checkedCount = applicable.filter((item) => state.checked[item.id]).length;
+      const requiredComplete = applicable.filter((item) => item.required).every((item) => state.checked[item.id]);
+      const groups = [...new Set(applicable.map((item) => item.group))];
+
+      results.innerHTML = `
+        <section class="result-card" aria-label="Trip dates">
+          <h2>Your application timeline</h2>
+          <dl class="timeline">
+            <div><dt>Apply from</dt><dd>${formatDate(addOneMonth(startDate))} (one month before travel)</dd></div>
+            <div><dt>Apply by and get your yellow fever vaccination</dt><dd>${formatDate(addDays(startDate, -10))} (at least 10 days before travel)</dd></div>
+          </dl>
+        </section>
+        <div class="checklist-heading">
+          <h2>Your checklist</h2>
+          <span class="progress" id="progress"></span>
+        </div>
+        <div class="groups" id="groups"></div>
+        ${requiredComplete ? `
+          <section class="result-card ready" aria-label="Ready to submit">
+            <h2>Ready to submit</h2>
+            <ul>
+              <li>Bring originals of everything you ticked.</li>
+              <li>USD 126 total (USD 36 visa + USD 90 service charge), non-refundable.</li>
+              <li>Submit at VFS in Kinshasa or Lubumbashi.</li>
+              <li>Collect after at least 5 working days.</li>
+            </ul>
+          </section>` : ""}
+        <p class="coming-next">Coming next: a pre-filled Form BI-84, a check for the online travel authorisation, and more African routes.</p>
+      `;
+
+      document.getElementById("progress").textContent = `${checkedCount} of ${applicable.length} items checked`;
+      const groupsContainer = document.getElementById("groups");
+      groups.forEach((group) => {
+        const card = document.createElement("section");
+        card.className = "group-card";
+        const title = document.createElement("h3");
+        title.textContent = group;
+        card.append(title);
+        applicable.filter((item) => item.group === group).forEach((item) => {
+          const label = document.createElement("label");
+          label.className = "check-item";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = Boolean(state.checked[item.id]);
+          checkbox.setAttribute("aria-label", item.text);
+          checkbox.addEventListener("change", () => {
+            state.checked[item.id] = checkbox.checked;
+            saveState();
+            renderChecklist();
+          });
+          const copy = document.createElement("span");
+          copy.className = "item-copy";
+          copy.append(document.createTextNode(item.text));
+          if (!item.required) {
+            const note = document.createElement("span");
+            note.className = "item-note";
+            note.textContent = "May be required, confirm with VFS";
+            copy.append(note);
+          }
+          if (item === firstUnchecked) {
+            const next = document.createElement("span");
+            next.className = "next-step";
+            next.textContent = "Next step";
+            copy.append(next);
+          }
+          label.append(checkbox, copy);
+          card.append(label);
+        });
+        groupsContainer.append(card);
+      });
+    }
+
+    function updateView() {
+      saveState();
+      if (state.answers.purpose === "study") {
+        message("Study visas are coming soon. Ask the South African Embassy in Kinshasa.", false);
+        return;
+      }
+      if (state.answers.purpose && state.answers.startDate && state.answers.endDate && state.answers.passportExpiry) {
+        if (validateTrip()) renderChecklist();
+      } else {
+        results.innerHTML = "";
+      }
+    }
+
+    Object.entries(fields).forEach(([key, field]) => {
+      field.value = state.answers[key];
+      field.addEventListener("change", updateView);
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveState();
+      if (validateTrip()) renderChecklist();
+    });
+
+    document.getElementById("reset").addEventListener("click", () => {
+      state = emptyState();
+      form.reset();
+      results.innerHTML = "";
+      localStorage.removeItem(STORAGE_KEY);
+      fields.purpose.focus();
+    });
+
+    if (state.answers.purpose && state.answers.startDate && state.answers.endDate && state.answers.passportExpiry) {
+      updateView();
+    }
+  </script>
+</body>
+</html>
